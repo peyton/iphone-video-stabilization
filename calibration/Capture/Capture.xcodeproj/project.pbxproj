@@ -298,6 +298,7 @@
 				9C6D16201B769EC200F07C23 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
