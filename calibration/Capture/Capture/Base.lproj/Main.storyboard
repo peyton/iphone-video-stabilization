@@ -10,7 +10,7 @@
         <scene sceneID="8uB-vl-zof">
             <objects>
                 <navigationController title="Navigation Controller" id="9Vg-mN-HdF" sceneMemberID="viewController">
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="gzq-1H-l7H">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" barStyle="black" id="gzq-1H-l7H">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <animations/>
@@ -51,28 +51,28 @@
                                                         <rect key="frame" x="549" y="12" width="38.5" height="16"/>
                                                         <animations/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="width × height" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FGk-1Y-PZE">
                                                         <rect key="frame" x="500" y="28" width="87.5" height="16"/>
                                                         <animations/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UUID" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FCu-5W-RKy">
                                                         <rect key="frame" x="279" y="17" width="41" height="20.5"/>
                                                         <animations/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0.0s" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oQf-wt-LLA">
                                                         <rect key="frame" x="12" y="7" width="67.5" height="41"/>
                                                         <animations/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="34"/>
-                                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
                                                 </subviews>
@@ -118,17 +118,26 @@
                                                 <rect key="frame" x="0.0" y="0.0" width="600" height="61"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
+                                                    <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="spd-ck-MJC">
+                                                        <rect key="frame" x="551" y="12" width="37" height="37"/>
+                                                        <animations/>
+                                                    </activityIndicatorView>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qJK-0P-a9z">
                                                         <rect key="frame" x="0.0" y="0.0" width="600" height="61"/>
                                                         <animations/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="24"/>
                                                         <inset key="contentEdgeInsets" minX="12" minY="16" maxX="12" maxY="16"/>
                                                         <state key="normal" title="Capture"/>
+                                                        <connections>
+                                                            <action selector="_captureButtonPressed:" destination="BYZ-38-t0r" eventType="primaryActionTriggered" id="nJI-T4-THQ"/>
+                                                        </connections>
                                                     </button>
                                                 </subviews>
                                                 <animations/>
                                                 <constraints>
                                                     <constraint firstItem="qJK-0P-a9z" firstAttribute="width" secondItem="p7s-RR-CQr" secondAttribute="width" id="5lE-0w-w8g"/>
+                                                    <constraint firstItem="spd-ck-MJC" firstAttribute="centerY" secondItem="p7s-RR-CQr" secondAttribute="centerY" id="Buq-wm-vz9"/>
+                                                    <constraint firstAttribute="trailing" secondItem="spd-ck-MJC" secondAttribute="trailing" constant="12" id="Fxb-MI-8Jq"/>
                                                     <constraint firstItem="qJK-0P-a9z" firstAttribute="centerX" secondItem="p7s-RR-CQr" secondAttribute="centerX" id="HtX-sv-tWo"/>
                                                     <constraint firstItem="qJK-0P-a9z" firstAttribute="centerY" secondItem="p7s-RR-CQr" secondAttribute="centerY" id="Sly-Gb-Gln"/>
                                                     <constraint firstItem="qJK-0P-a9z" firstAttribute="height" secondItem="p7s-RR-CQr" secondAttribute="height" id="uZf-wd-sSV"/>
@@ -173,6 +182,7 @@
                     <connections>
                         <outlet property="captureButton" destination="qJK-0P-a9z" id="ftp-ic-igk"/>
                         <outlet property="captureButtonBlurView" destination="5SC-ax-cCy" id="kg4-No-eS9"/>
+                        <outlet property="captureButtonSpinner" destination="spd-ck-MJC" id="3aO-J1-Y2J"/>
                         <outlet property="dimensionsLabel" destination="FGk-1Y-PZE" id="Agv-M8-TzE"/>
                         <outlet property="durationLabel" destination="oQf-wt-LLA" id="EfJ-Nt-cFg"/>
                         <outlet property="fpsLabel" destination="b0H-Rd-Dlu" id="vA6-q5-4aU"/>
