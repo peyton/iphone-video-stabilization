@@ -127,20 +127,17 @@ typedef NS_ENUM(NSInteger, CaptureState) {
         case kCaptureStateSaving:
             [self _throwUnavailableInCurrentState];
             break;
-        case kCaptureStateCapturing:
+        case kCaptureStateCapturing: {
             [self _transitionToState:kCaptureStateSaving];
-            break;
-        case kCaptureStateReady:
-            [self _transitionToState:kCaptureStateCapturing];
             
             // Mock transition for testing
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [self _transitionToState:kCaptureStateSaving];
-                
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                    [self _transitionToState:kCaptureStateReady];
-                });
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self _transitionToState:kCaptureStateReady];
             });
+            break;
+        }
+        case kCaptureStateReady:
+            [self _transitionToState:kCaptureStateCapturing];
             
             break;
     }
@@ -263,8 +260,6 @@ typedef NS_ENUM(NSInteger, CaptureState) {
 
 - (void)_transitionUIFromCapturingState;
 {
-    self.durationLabel.alpha = 0;
-    self.uuidLabel.alpha = 0;
 }
 
 - (void)_transitionUIToSavingState;
@@ -279,6 +274,8 @@ typedef NS_ENUM(NSInteger, CaptureState) {
 
 - (void)_transitionUIFromSavingState;
 {
+    self.durationLabel.alpha = 0;
+    self.uuidLabel.alpha = 0;
     [self.captureButtonSpinner stopAnimating];
 }
 

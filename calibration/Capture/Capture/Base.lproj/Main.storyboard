@@ -2,7 +2,6 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="8173.3" systemVersion="15A244d" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="9Vg-mN-HdF">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8142"/>
-        <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
@@ -47,20 +46,6 @@
                                                 <rect key="frame" x="0.0" y="0.0" width="600" height="56"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0.0fps" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b0H-Rd-Dlu">
-                                                        <rect key="frame" x="549" y="12" width="38.5" height="16"/>
-                                                        <animations/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="width × height" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FGk-1Y-PZE">
-                                                        <rect key="frame" x="500" y="28" width="87.5" height="16"/>
-                                                        <animations/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="UUID" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FCu-5W-RKy">
                                                         <rect key="frame" x="279" y="17" width="41" height="20.5"/>
                                                         <animations/>
@@ -75,21 +60,48 @@
                                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                                         <nil key="highlightedColor"/>
                                                     </label>
+                                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="bottom" translatesAutoresizingMaskIntoConstraints="NO" id="tot-QO-V7h">
+                                                        <rect key="frame" x="500.5" y="12" width="87.5" height="32"/>
+                                                        <subviews>
+                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="0.0fps" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b0H-Rd-Dlu">
+                                                                <rect key="frame" x="49" y="0.0" width="38.5" height="16"/>
+                                                                <animations/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="width × height" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FGk-1Y-PZE">
+                                                                <rect key="frame" x="0.0" y="16" width="87.5" height="16"/>
+                                                                <animations/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                        </subviews>
+                                                        <animations/>
+                                                    </stackView>
                                                 </subviews>
                                                 <animations/>
                                                 <constraints>
                                                     <constraint firstItem="FCu-5W-RKy" firstAttribute="centerX" secondItem="fgx-uc-U1a" secondAttribute="centerX" id="0WT-0b-vzU"/>
-                                                    <constraint firstItem="FGk-1Y-PZE" firstAttribute="trailing" secondItem="b0H-Rd-Dlu" secondAttribute="trailing" id="1wg-Xl-OlQ"/>
-                                                    <constraint firstItem="b0H-Rd-Dlu" firstAttribute="top" secondItem="fgx-uc-U1a" secondAttribute="top" constant="12" id="2UD-To-kh8"/>
-                                                    <constraint firstAttribute="trailing" secondItem="b0H-Rd-Dlu" secondAttribute="trailing" constant="12" id="3kY-lP-RWm"/>
-                                                    <constraint firstAttribute="bottom" secondItem="FGk-1Y-PZE" secondAttribute="bottom" constant="12" id="BbN-0g-tJr"/>
+                                                    <constraint firstItem="tot-QO-V7h" firstAttribute="centerY" secondItem="fgx-uc-U1a" secondAttribute="centerY" id="ADr-xq-taw"/>
+                                                    <constraint firstAttribute="trailing" secondItem="tot-QO-V7h" secondAttribute="trailing" constant="12" id="FHq-9a-8ws"/>
+                                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="oQf-wt-LLA" secondAttribute="bottom" constant="7" id="GXl-pb-q51"/>
                                                     <constraint firstItem="oQf-wt-LLA" firstAttribute="leading" secondItem="fgx-uc-U1a" secondAttribute="leading" constant="12" id="Kbr-la-ua8"/>
-                                                    <constraint firstItem="FGk-1Y-PZE" firstAttribute="top" secondItem="b0H-Rd-Dlu" secondAttribute="baseline" constant="4" id="ry2-fC-Xq9"/>
+                                                    <constraint firstItem="FCu-5W-RKy" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="oQf-wt-LLA" secondAttribute="trailing" constant="12" id="cSA-uB-Cfo"/>
+                                                    <constraint firstItem="FCu-5W-RKy" firstAttribute="top" relation="greaterThanOrEqual" secondItem="fgx-uc-U1a" secondAttribute="top" constant="12" id="eVn-pi-HtN"/>
+                                                    <constraint firstItem="tot-QO-V7h" firstAttribute="top" relation="greaterThanOrEqual" secondItem="fgx-uc-U1a" secondAttribute="top" constant="12" id="hIc-h3-NEt"/>
+                                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="FCu-5W-RKy" secondAttribute="bottom" constant="12" id="iQt-15-nhM"/>
+                                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="tot-QO-V7h" secondAttribute="bottom" constant="12" id="nnl-V1-aW3"/>
                                                     <constraint firstItem="FCu-5W-RKy" firstAttribute="centerY" secondItem="fgx-uc-U1a" secondAttribute="centerY" id="scb-YJ-CI0"/>
+                                                    <constraint firstItem="oQf-wt-LLA" firstAttribute="top" relation="greaterThanOrEqual" secondItem="fgx-uc-U1a" secondAttribute="top" constant="7" id="u20-jQ-fkf"/>
                                                     <constraint firstItem="oQf-wt-LLA" firstAttribute="centerY" secondItem="fgx-uc-U1a" secondAttribute="centerY" id="xMi-uT-IK8"/>
                                                 </constraints>
                                             </view>
                                             <animations/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" relation="lessThanOrEqual" priority="200" constant="1" id="ZIS-uW-v1W"/>
+                                            </constraints>
                                             <vibrancyEffect>
                                                 <blurEffect style="light"/>
                                             </vibrancyEffect>
