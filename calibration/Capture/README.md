@@ -4,7 +4,6 @@ Utility for capturing video and motion data from iPhone. Each capture's data is 
 #TODO
 * Create user interface in Interface Builder.
 * Import capture pipeline, movie recorder, and preview view from Apple's RosyWriter sample code.
-* Import CSV writer.
 * Encapsulate capture session, capture directory creation, etc.
 * Wire up video capture.
 * Subscribe to accelerometer, gyroscope, and magnetometer updates where available.
