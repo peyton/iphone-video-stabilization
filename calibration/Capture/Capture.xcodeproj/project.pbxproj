@@ -13,6 +13,7 @@
 		9C6D16151B769EC200F07C23 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9C6D16131B769EC200F07C23 /* Main.storyboard */; };
 		9C6D16171B769EC200F07C23 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9C6D16161B769EC200F07C23 /* Assets.xcassets */; };
 		9C6D161A1B769EC200F07C23 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9C6D16181B769EC200F07C23 /* LaunchScreen.storyboard */; };
+		9C840F001B7CE9660057E0D2 /* CHCSVParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C840EFF1B7CE9660057E0D2 /* CHCSVParser.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,8 @@
 		9C6D16161B769EC200F07C23 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9C6D16191B769EC200F07C23 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9C6D161B1B769EC200F07C23 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9C840EFE1B7CE9660057E0D2 /* CHCSVParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CHCSVParser.h; path = External/CHCSVParser/CHCSVParser/CHCSVParser/CHCSVParser.h; sourceTree = "<group>"; };
+		9C840EFF1B7CE9660057E0D2 /* CHCSVParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CHCSVParser.m; path = External/CHCSVParser/CHCSVParser/CHCSVParser/CHCSVParser.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -43,6 +46,7 @@
 			isa = PBXGroup;
 			children = (
 				9C6D16091B769EC200F07C23 /* Capture */,
+				9C840EFC1B7CE92D0057E0D2 /* External */,
 				9C6D16081B769EC200F07C23 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -77,6 +81,23 @@
 				9C6D160B1B769EC200F07C23 /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		9C840EFC1B7CE92D0057E0D2 /* External */ = {
+			isa = PBXGroup;
+			children = (
+				9C840EFD1B7CE95C0057E0D2 /* CHCSVParser */,
+			);
+			name = External;
+			sourceTree = "<group>";
+		};
+		9C840EFD1B7CE95C0057E0D2 /* CHCSVParser */ = {
+			isa = PBXGroup;
+			children = (
+				9C840EFE1B7CE9660057E0D2 /* CHCSVParser.h */,
+				9C840EFF1B7CE9660057E0D2 /* CHCSVParser.m */,
+			);
+			name = CHCSVParser;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -149,6 +170,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9C840F001B7CE9660057E0D2 /* CHCSVParser.m in Sources */,
 				9C6D16121B769EC200F07C23 /* CaptureViewController.m in Sources */,
 				9C6D160F1B769EC200F07C23 /* AppDelegate.m in Sources */,
 				9C6D160C1B769EC200F07C23 /* main.m in Sources */,
