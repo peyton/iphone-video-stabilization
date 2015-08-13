@@ -6,9 +6,16 @@
 //  Copyright © 2015 peytn. All rights reserved.
 //
 
-#import "ViewController.h"
+#import "CaptureViewController.h"
 
-@interface ViewController ()
+@interface CaptureViewController ()
+
+@property (nonatomic, weak) IBOutlet UIButton *captureButton;
+@property (nonatomic, weak) IBOutlet UIVisualEffectView *captureButtonBlurView;
+
+@property (nonatomic, weak) IBOutlet UILabel *dimensionsLabel;
+@property (nonatomic, weak) IBOutlet UILabel *fpsLabel;
+@property (nonatomic, weak) IBOutlet UIVisualEffectView *statsBlurView;
 
 @end
 
