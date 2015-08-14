@@ -400,6 +400,9 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 			[self captureSessionDidStopRunning];
 			
 			NSError *error = notification.userInfo[AVCaptureSessionErrorKey];
+            /**
+             * Deprecated: iOS 9
+             * TODO: replace
 			if ( error.code == AVErrorDeviceIsNotAvailableInBackground )
 			{
 				NSLog( @"device not available in background" );
@@ -409,7 +412,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 					_startCaptureSessionOnEnteringForeground = YES;
 				}
 			}
-			else if ( error.code == AVErrorMediaServicesWereReset )
+			else */ if ( error.code == AVErrorMediaServicesWereReset )
 			{
 				NSLog( @"media services were reset" );
 				[self handleRecoverableCaptureSessionRuntimeError:error];
@@ -752,6 +755,9 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 	
 	self.recorder = nil;
 	
+    /** 
+     * Deprecated iOS 9.
+     * TODO: replace.
 	ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
 	[library writeVideoAtPathToSavedPhotosAlbum:_recordingURL completionBlock:^(NSURL *assetURL, NSError *error) {
 		
@@ -766,6 +772,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 		}
 	}];
 	[library release];
+    */
 }
 
 #pragma mark Recording State Machine
@@ -868,7 +875,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 			transform = CGAffineTransformScale( transform, -1, 1 );
 		}
 		else {
-			if ( UIInterfaceOrientationIsPortrait( orientation ) ) {
+			if ( UIInterfaceOrientationIsPortrait( (UIInterfaceOrientation)orientation ) ) {
 				transform = CGAffineTransformRotate( transform, M_PI );
 			}
 		}
