@@ -9,9 +9,12 @@
 #import "CaptureViewController.h"
 
 #import "CaptureManager.h"
+#import "OpenGLPixelBufferView.h"
 
 @import CoreMedia;
 @import CoreVideo;
+
+typedef OpenGLPixelBufferView PreviewView;
 
 static const NSTimeInterval kUIFadeDuration = 0.3; // seconds
 
@@ -21,7 +24,7 @@ typedef NS_ENUM(NSInteger, CaptureState) {
     kCaptureStateSaving,
 };
 
-@interface CaptureViewController ()
+@interface CaptureViewController () <CaptureManagerDelegate>
 
 @property (nonatomic, strong, readonly) CaptureManager *captureManager;
 
@@ -34,6 +37,8 @@ typedef NS_ENUM(NSInteger, CaptureState) {
 @property (nonatomic, weak) IBOutlet UILabel *fpsLabel;
 @property (nonatomic, weak) IBOutlet UIVisualEffectView *statsBlurView;
 @property (nonatomic, weak) IBOutlet UILabel *uuidLabel;
+
+@property (nonatomic, strong) PreviewView *previewView;
 
 @property (nonatomic, assign, readonly) CaptureState state;
 
@@ -62,6 +67,7 @@ typedef NS_ENUM(NSInteger, CaptureState) {
     _state = kCaptureStateReady;
     
     _captureManager = [[CaptureManager alloc] init];
+    _captureManager.delegate = self;
     
     return self;
 }
@@ -73,6 +79,11 @@ typedef NS_ENUM(NSInteger, CaptureState) {
 }
 
 #pragma mark - User interface
+
+- (void)_setupPreviewView;
+{
+    
+}
 
 - (void)_configureInitialUI;
 {
@@ -331,6 +342,26 @@ static inline NSString *_CaptureStateToString(CaptureState state) {
     NSString *reasonFormat = NSLocalizedString(@"Unavailable in current state (%@)", nil);
     NSString *reason = [NSString stringWithFormat:reasonFormat, _CaptureStateToString(self.state)];
     @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:reason userInfo:nil];
+}
+
+#pragma mark - CaptureManagerDelegate
+
+- (void)captureManager:(CaptureManager *)captureManager previewPixelBufferReadyForDisplay:(CVPixelBufferRef)previewPixelBuffer;
+{
+    if (!self.previewView)
+        [self _setupPreviewView];
+    
+    [self.previewView displayPixelBuffer:previewPixelBuffer];
+}
+
+- (void)captureManager:(CaptureManager *)captureManager didStopRunningWithError:(NSError *)error;
+{
+    [self _showError:error];
+}
+
+- (void)captureManager:(CaptureManager *)captureManager didFailWithError:(NSError *)error;
+{
+    [self _showError:error];
 }
 
 #pragma mark - Constants
