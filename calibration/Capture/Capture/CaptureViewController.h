@@ -9,7 +9,5 @@
 @import UIKit;
 
 @interface CaptureViewController : UIViewController
-
-
 @end
 

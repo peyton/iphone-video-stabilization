@@ -190,7 +190,9 @@
                             </mask>
                         </variation>
                     </view>
-                    <navigationItem key="navigationItem" id="tKD-xC-oDr"/>
+                    <navigationItem key="navigationItem" id="tKD-xC-oDr">
+                        <barButtonItem key="rightBarButtonItem" title="Device" id="xr8-UJ-BO5" userLabel="Device"/>
+                    </navigationItem>
                     <connections>
                         <outlet property="captureButton" destination="qJK-0P-a9z" id="ftp-ic-igk"/>
                         <outlet property="captureButtonBlurView" destination="5SC-ax-cCy" id="kg4-No-eS9"/>

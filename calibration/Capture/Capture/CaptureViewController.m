@@ -8,6 +8,8 @@
 
 #import "CaptureViewController.h"
 
+#import "CaptureManager.h"
+
 @import CoreMedia;
 @import CoreVideo;
 
@@ -21,6 +23,8 @@ typedef NS_ENUM(NSInteger, CaptureState) {
 
 @interface CaptureViewController ()
 
+@property (nonatomic, strong, readonly) CaptureManager *captureManager;
+
 @property (nonatomic, weak) IBOutlet UIButton *captureButton;
 @property (nonatomic, weak) IBOutlet UIVisualEffectView *captureButtonBlurView;
 @property (nonatomic, weak) IBOutlet UIActivityIndicatorView *captureButtonSpinner;
@@ -31,7 +35,7 @@ typedef NS_ENUM(NSInteger, CaptureState) {
 @property (nonatomic, weak) IBOutlet UIVisualEffectView *statsBlurView;
 @property (nonatomic, weak) IBOutlet UILabel *uuidLabel;
 
-@property (nonatomic, assign) CaptureState state;
+@property (nonatomic, assign, readonly) CaptureState state;
 
 @end
 
@@ -55,7 +59,9 @@ typedef NS_ENUM(NSInteger, CaptureState) {
 
 - (instancetype)_initCommon
 {
-    self.state = kCaptureStateReady;
+    _state = kCaptureStateReady;
+    
+    _captureManager = [[CaptureManager alloc] init];
     
     return self;
 }
@@ -138,7 +144,6 @@ typedef NS_ENUM(NSInteger, CaptureState) {
         }
         case kCaptureStateReady:
             [self _transitionToState:kCaptureStateCapturing];
-            
             break;
     }
 }
@@ -165,7 +170,7 @@ typedef NS_ENUM(NSInteger, CaptureState) {
         break;
     }
     
-    self.state = state;
+    _state = state;
     
     switch (self.state) {
     case kCaptureStateReady:
