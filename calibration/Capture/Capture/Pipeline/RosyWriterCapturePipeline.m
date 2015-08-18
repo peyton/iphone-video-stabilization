@@ -55,8 +55,6 @@
 #import <AssetsLibrary/AssetsLibrary.h>
 #import <ImageIO/CGImageProperties.h>
 
-#include <objc/runtime.h> // for objc_loadWeak() and objc_storeWeak()
-
 #define LOG_STATUS_TRANSITIONS 0
 
 typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
@@ -119,13 +117,13 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 		
 		_recordingURL = [[NSURL alloc] initFileURLWithPath:[NSString pathWithComponents:@[NSTemporaryDirectory(), @"Movie.MOV"]]];
 		
-		_sessionQueue = dispatch_queue_create( "com.apple.sample.capturepipeline.session", DISPATCH_QUEUE_SERIAL );
+		_sessionQueue = dispatch_queue_create( "com.peytn.capture.capturepipeline.session", DISPATCH_QUEUE_SERIAL );
 		
 		// In a multi-threaded producer consumer system it's generally a good idea to make sure that producers do not get starved of CPU time by their consumers.
 		// In this app we start with VideoDataOutput frames on a high priority queue, and downstream consumers use default priority queues.
 		// Audio uses a default priority queue because we aren't monitoring it live and just want to get it into the movie.
 		// AudioDataOutput can tolerate more latency than VideoDataOutput as its buffers aren't allocated out of a fixed size pool.
-		_videoDataOutputQueue = dispatch_queue_create( "com.apple.sample.capturepipeline.video", DISPATCH_QUEUE_SERIAL );
+		_videoDataOutputQueue = dispatch_queue_create( "com.peytn.capture.capturepipeline.video", DISPATCH_QUEUE_SERIAL );
 		dispatch_set_target_queue( _videoDataOutputQueue, dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_HIGH, 0 ) );
 				
 		_pipelineRunningTask = UIBackgroundTaskInvalid;
@@ -135,49 +133,30 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 
 - (void)dealloc
 {
-	objc_storeWeak( &_delegate, nil ); // unregister _delegate as a weak reference
-	
-	[_delegateCallbackQueue release];
-
-	if ( _currentPreviewPixelBuffer ) {
-		CFRelease( _currentPreviewPixelBuffer );
-	}
-	
-	[_previousSecondTimestamps release];
-	
-	[self teardownCaptureSession];
-	
-	[_sessionQueue release];
-	[_videoDataOutputQueue release];
+	if ( _currentPreviewPixelBuffer )
+		CVPixelBufferRelease( _currentPreviewPixelBuffer );
 		
-	if ( _outputVideoFormatDescription ) {
+	[self teardownCaptureSession];
+		
+	if ( _outputVideoFormatDescription )
 		CFRelease( _outputVideoFormatDescription );
-	}
 	
-	if ( _outputAudioFormatDescription ) {
+	if ( _outputAudioFormatDescription )
 		CFRelease( _outputAudioFormatDescription );
-	}
-	
-	[_recorder release];
-	[_recordingURL release];
-	
-	[super dealloc];
 }
 
 #pragma mark Delegate
 
 - (void)setDelegate:(id<RosyWriterCapturePipelineDelegate>)delegate callbackQueue:(dispatch_queue_t)delegateCallbackQueue // delegate is weak referenced
 {
-	if ( delegate && ( delegateCallbackQueue == NULL ) ) {
+	if (delegate && !delegateCallbackQueue)
 		@throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"Caller must provide a delegateCallbackQueue" userInfo:nil];
-	}
 	
 	@synchronized( self )
 	{
-		objc_storeWeak( &_delegate, delegate ); // unnecessary under ARC, just assign to _delegate directly
+        _delegate = delegate;
 		if ( delegateCallbackQueue != _delegateCallbackQueue ) {
-			[_delegateCallbackQueue release];
-			_delegateCallbackQueue = [delegateCallbackQueue retain];
+            _delegateCallbackQueue = delegateCallbackQueue;
 		}
 	}
 }
@@ -186,7 +165,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 {
 	id <RosyWriterCapturePipelineDelegate> delegate = nil;
 	@synchronized( self ) {
-		delegate = objc_loadWeak( &_delegate ); // unnecessary under ARC, just assign delegate to _delegate directly
+        delegate = _delegate;
 	}
 	return delegate;
 }
@@ -240,19 +219,16 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 	if ( [_captureSession canAddInput:audioIn] ) {
 		[_captureSession addInput:audioIn];
 	}
-	[audioIn release];
 	
 	AVCaptureAudioDataOutput *audioOut = [[AVCaptureAudioDataOutput alloc] init];
 	// Put audio on its own queue to ensure that our video processing doesn't cause us to drop audio
 	dispatch_queue_t audioCaptureQueue = dispatch_queue_create( "com.apple.sample.capturepipeline.audio", DISPATCH_QUEUE_SERIAL );
 	[audioOut setSampleBufferDelegate:self queue:audioCaptureQueue];
-	[audioCaptureQueue release];
 	
 	if ( [_captureSession canAddOutput:audioOut] ) {
 		[_captureSession addOutput:audioOut];
 	}
 	_audioConnection = [audioOut connectionWithMediaType:AVMediaTypeAudio];
-	[audioOut release];
 	
 	/* Video */
 	AVCaptureDevice *videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
@@ -261,7 +237,6 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 	if ( [_captureSession canAddInput:videoIn] ) {
 		[_captureSession addInput:videoIn];
 	}
-	[videoIn release];
 	
 	AVCaptureVideoDataOutput *videoOut = [[AVCaptureVideoDataOutput alloc] init];
 	videoOut.videoSettings = @{ (id)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA) };
@@ -291,12 +266,10 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 	}
 	else
 	{
-#if ! USE_OPENGL_RENDERER
 		// When using the CPU renderers or the CoreImage renderer we lower the resolution to 720p so that all devices can maintain real-time performance (this is primarily for A5 based devices like iPhone 4s and iPod Touch 5th Generation).
 		if ( [_captureSession canSetSessionPreset:AVCaptureSessionPreset1280x720] ) {
 			sessionPreset = AVCaptureSessionPreset1280x720;
 		}
-#endif // ! USE_OPENGL_RENDERER
 
 		frameRate = 30;
 	}
@@ -320,9 +293,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 	_videoCompressionSettings = [[videoOut recommendedVideoSettingsForAssetWriterWithOutputFileType:AVFileTypeQuickTimeMovie] copy];
 	
 	self.videoOrientation = _videoConnection.videoOrientation;
-	
-	[videoOut release];
-	
+		
 	return;
 }
 
@@ -335,12 +306,9 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 		[[NSNotificationCenter defaultCenter] removeObserver:_applicationWillEnterForegroundNotificationObserver];
 		_applicationWillEnterForegroundNotificationObserver = nil;
 		
-		[_captureSession release];
 		_captureSession = nil;
 		
-		[_videoCompressionSettings release];
 		_videoCompressionSettings = nil;
-		[_audioCompressionSettings release];
 		_audioCompressionSettings = nil;
 	}
 }
@@ -641,7 +609,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 		[self transitionToRecordingStatus:RosyWriterRecordingStatusStartingRecording error:nil];
 	}
 	
-	MovieRecorder *recorder = [[[MovieRecorder alloc] initWithURL:_recordingURL] autorelease];
+	MovieRecorder *recorder = [[MovieRecorder alloc] initWithURL:_recordingURL];
 	
 	[recorder addAudioTrackWithSourceFormatDescription:self.outputAudioFormatDescription settings:_audioCompressionSettings];
     
@@ -649,9 +617,8 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 
 	[recorder addVideoTrackWithSourceFormatDescription:self.outputVideoFormatDescription transform:videoTransform settings:_videoCompressionSettings];
 	
-	dispatch_queue_t callbackQueue = dispatch_queue_create( "com.apple.sample.capturepipeline.recordercallback", DISPATCH_QUEUE_SERIAL ); // guarantee ordering of callbacks with a serial queue
+	dispatch_queue_t callbackQueue = dispatch_queue_create( "com.peytn.capture.capturepipeline.recordercallback", DISPATCH_QUEUE_SERIAL ); // guarantee ordering of callbacks with a serial queue
 	[recorder setDelegate:self callbackQueue:callbackQueue];
-	[callbackQueue release];
 	self.recorder = recorder;
 	
 	[recorder prepareToRecord]; // asynchronous, will call us back with recorderDidFinishPreparing: or recorder:didFailWithError: when done
@@ -765,6 +732,8 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 	
 	if ( delegateSelector && self.delegate )
 	{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 		dispatch_async( _delegateCallbackQueue, ^{
 			@autoreleasepool
 			{
@@ -776,6 +745,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 				}
 			}
 		} );
+#pragma clang diagnostic pop
 	}
 }
 

@@ -65,15 +65,15 @@
 - (void)startRecording;
 - (void)stopRecording;
 
-@property(readwrite) BOOL renderingEnabled; // When set to false the GPU will not be used after the setRenderingEnabled: call returns.
+@property (assign) BOOL renderingEnabled; // When set to false the GPU will not be used after the setRenderingEnabled: call returns.
 
-@property(readwrite) AVCaptureVideoOrientation recordingOrientation; // client can set the orientation for the recorded movie
+@property (assign) AVCaptureVideoOrientation recordingOrientation; // client can set the orientation for the recorded movie
 
 - (CGAffineTransform)transformFromVideoBufferOrientationToOrientation:(AVCaptureVideoOrientation)orientation withAutoMirroring:(BOOL)mirroring; // only valid after startRunning has been called
 
 // Stats
-@property(readonly) float videoFrameRate;
-@property(readonly) CMVideoDimensions videoDimensions;
+@property (assign, readonly) float videoFrameRate;
+@property (assign, readonly) CMVideoDimensions videoDimensions;
 
 @end
 
