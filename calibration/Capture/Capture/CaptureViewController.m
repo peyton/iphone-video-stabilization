@@ -82,7 +82,18 @@ typedef NS_ENUM(NSInteger, CaptureState) {
 
 - (void)_setupPreviewView;
 {
+    // Set up GL view
+    self.previewView = [[PreviewView alloc] initWithFrame:CGRectZero];
+    self.previewView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     
+//    UIInterfaceOrientation currentInterfaceOrientation = [UIApplication sharedApplication].statusBarOrientation;
+//    self.previewView.transform = [self.capturePipeline transformFromVideoBufferOrientationToOrientation:(AVCaptureVideoOrientation)currentInterfaceOrientation withAutoMirroring:YES];
+    
+    [self.view insertSubview:self.previewView atIndex:0];
+    CGRect bounds = CGRectZero;
+    bounds.size = [self.view convertRect:self.view.bounds toView:self.previewView].size;
+    self.previewView.bounds = bounds;
+    self.previewView.center = CGPointMake(self.view.bounds.size.width/2.0, self.view.bounds.size.height/2.0);
 }
 
 - (void)_configureInitialUI;

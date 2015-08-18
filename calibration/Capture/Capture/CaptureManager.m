@@ -10,7 +10,7 @@
 
 #import "CapturePipeline.h"
 
-@interface CaptureManager () <RosyWriterCapturePipelineDelegate> {
+@interface CaptureManager () <CapturePipelineDelegate> {
     BOOL _allowedToUseGPU;
 }
 
