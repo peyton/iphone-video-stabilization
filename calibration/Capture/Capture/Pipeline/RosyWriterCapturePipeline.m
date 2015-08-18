@@ -48,8 +48,6 @@
 
 #import "RosyWriterCapturePipeline.h"
 
-#import "RosyWriterCPURenderer.h"
-
 #import "MovieRecorder.h"
 
 #import <CoreMedia/CMBufferQueue.h>
@@ -105,7 +103,6 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 	dispatch_queue_t _sessionQueue;
 	dispatch_queue_t _videoDataOutputQueue;
 	
-	id<RosyWriterRenderer> _renderer;
 	BOOL _renderingEnabled;
 	
 	NSURL *_recordingURL;
@@ -146,17 +143,6 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 		// AudioDataOutput can tolerate more latency than VideoDataOutput as its buffers aren't allocated out of a fixed size pool.
 		_videoDataOutputQueue = dispatch_queue_create( "com.apple.sample.capturepipeline.video", DISPATCH_QUEUE_SERIAL );
 		dispatch_set_target_queue( _videoDataOutputQueue, dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_HIGH, 0 ) );
-		
-// USE_XXX_RENDERER is set in the project's build settings for each target
-#if USE_OPENGL_RENDERER
-		_renderer = [[RosyWriterOpenGLRenderer alloc] init];
-#elif USE_CPU_RENDERER
-		_renderer = [[RosyWriterCPURenderer alloc] init];
-#elif USE_CIFILTER_RENDERER
-		_renderer = [[RosyWriterCIFilterRenderer alloc] init];
-#elif USE_OPENCV_RENDERER
-		_renderer = [[RosyWriterOpenCVRenderer alloc] init];
-#endif
 				
 		_pipelineRunningTask = UIBackgroundTaskInvalid;
 	}
@@ -179,9 +165,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 	
 	[_sessionQueue release];
 	[_videoDataOutputQueue release];
-	
-	[_renderer release];
-	
+		
 	if ( _outputVideoFormatDescription ) {
 		CFRelease( _outputVideoFormatDescription );
 	}
@@ -298,7 +282,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 	[videoIn release];
 	
 	AVCaptureVideoDataOutput *videoOut = [[AVCaptureVideoDataOutput alloc] init];
-	videoOut.videoSettings = @{ (id)kCVPixelBufferPixelFormatTypeKey : @(_renderer.inputPixelFormat) };
+	videoOut.videoSettings = @{ (id)kCVPixelBufferPixelFormatTypeKey : @(kCVPixelFormatType_32BGRA) };
 	[videoOut setSampleBufferDelegate:self queue:_videoDataOutputQueue];
 	
 	// RosyWriter records videos and we prefer not to have any dropped frames in the video recording.
@@ -490,14 +474,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 	[self videoPipelineWillStartRunning];
 	
 	self.videoDimensions = CMVideoFormatDescriptionGetDimensions( inputFormatDescription );
-	[_renderer prepareForInputWithFormatDescription:inputFormatDescription outputRetainedBufferCountHint:RETAINED_BUFFER_COUNT];
-	
-	if ( ! _renderer.operatesInPlace && [_renderer respondsToSelector:@selector(outputFormatDescription)] ) {
-		self.outputVideoFormatDescription = _renderer.outputFormatDescription;
-	}
-	else {
-		self.outputVideoFormatDescription = inputFormatDescription;
-	}
+    self.outputVideoFormatDescription = inputFormatDescription;
 }
 
 // synchronous, blocks until the pipeline is drained, don't call from within the pipeline
@@ -516,7 +493,6 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 		}
 		
 		self.outputVideoFormatDescription = nil;
-		[_renderer reset];
 		self.currentPreviewPixelBuffer = NULL;
 		
 		NSLog( @"-[%@ %@] finished teardown", NSStringFromClass([self class]), NSStringFromSelector(_cmd) );
@@ -562,14 +538,14 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 
 - (void)setRenderingEnabled:(BOOL)renderingEnabled
 {
-	@synchronized( _renderer ) {
+	@synchronized( self ) {
 		_renderingEnabled = renderingEnabled;
 	}
 }
 
 - (BOOL)renderingEnabled
 {
-	@synchronized( _renderer ) {
+	@synchronized( self ) {
 		return _renderingEnabled;
 	}
 }
@@ -641,11 +617,11 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 	
 	// We must not use the GPU while running in the background.
 	// setRenderingEnabled: takes the same lock so the caller can guarantee no GPU usage once the setter returns.
-	@synchronized( _renderer )
+	@synchronized( self )
 	{
 		if ( _renderingEnabled ) {
 			CVPixelBufferRef sourcePixelBuffer = CMSampleBufferGetImageBuffer( sampleBuffer );
-			renderedPixelBuffer = [_renderer copyRenderedPixelBuffer:sourcePixelBuffer];
+            renderedPixelBuffer = CVPixelBufferRetain(sourcePixelBuffer);
 		}
 		else {
 			return;
