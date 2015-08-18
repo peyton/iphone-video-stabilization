@@ -1,52 +1,13 @@
 
 /*
-     File: RosyWriterCapturePipeline.m
+     File: CapturePipeline.m
  Abstract: The class that creates and manages the AVCaptureSession
   Version: 2.1
  
- Disclaimer: IMPORTANT:  This Apple software is supplied to you by Apple
- Inc. ("Apple") in consideration of your agreement to the following
- terms, and your use, installation, modification or redistribution of
- this Apple software constitutes acceptance of these terms.  If you do
- not agree with these terms, please do not use, install, modify or
- redistribute this Apple software.
- 
- In consideration of your agreement to abide by the following terms, and
- subject to these terms, Apple grants you a personal, non-exclusive
- license, under Apple's copyrights in this original Apple software (the
- "Apple Software"), to use, reproduce, modify and redistribute the Apple
- Software, with or without modifications, in source and/or binary forms;
- provided that if you redistribute the Apple Software in its entirety and
- without modifications, you must retain this notice and the following
- text and disclaimers in all such redistributions of the Apple Software.
- Neither the name, trademarks, service marks or logos of Apple Inc. may
- be used to endorse or promote products derived from the Apple Software
- without specific prior written permission from Apple.  Except as
- expressly stated in this notice, no other rights or licenses, express or
- implied, are granted by Apple herein, including but not limited to any
- patent rights that may be infringed by your derivative works or by other
- works in which the Apple Software may be incorporated.
- 
- The Apple Software is provided by Apple on an "AS IS" basis.  APPLE
- MAKES NO WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION
- THE IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY AND FITNESS
- FOR A PARTICULAR PURPOSE, REGARDING THE APPLE SOFTWARE OR ITS USE AND
- OPERATION ALONE OR IN COMBINATION WITH YOUR PRODUCTS.
- 
- IN NO EVENT SHALL APPLE BE LIABLE FOR ANY SPECIAL, INDIRECT, INCIDENTAL
- OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- INTERRUPTION) ARISING IN ANY WAY OUT OF THE USE, REPRODUCTION,
- MODIFICATION AND/OR DISTRIBUTION OF THE APPLE SOFTWARE, HOWEVER CAUSED
- AND WHETHER UNDER THEORY OF CONTRACT, TORT (INCLUDING NEGLIGENCE),
- STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN ADVISED OF THE
- POSSIBILITY OF SUCH DAMAGE.
- 
- Copyright (C) 2014 Apple Inc. All Rights Reserved.
- 
+ Adapted from RosyWriterCapturePipeline
  */
 
-#import "RosyWriterCapturePipeline.h"
+#import "CapturePipeline.h"
 
 #import "MovieRecorder.h"
 
@@ -57,17 +18,17 @@
 
 #define LOG_STATUS_TRANSITIONS 0
 
-typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
+typedef NS_ENUM( NSInteger, RecordingStatus )
 {
-	RosyWriterRecordingStatusIdle = 0,
-	RosyWriterRecordingStatusStartingRecording,
-	RosyWriterRecordingStatusRecording,
-	RosyWriterRecordingStatusStoppingRecording,
+	RecordingStatusIdle = 0,
+	RecordingStatusStartingRecording,
+	RecordingStatusRecording,
+	RecordingStatusStoppingRecording,
 }; // internal state machine
 
-@interface RosyWriterCapturePipeline () <AVCaptureAudioDataOutputSampleBufferDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, MovieRecorderDelegate>
+@interface CapturePipeline () <AVCaptureAudioDataOutputSampleBufferDelegate, AVCaptureVideoDataOutputSampleBufferDelegate, MovieRecorderDelegate>
 {
-	__weak id <RosyWriterCapturePipelineDelegate> _delegate; // __weak doesn't actually do anything under non-ARC
+	__weak id <CapturePipelineDelegate> _delegate; // __weak doesn't actually do anything under non-ARC
 	dispatch_queue_t _delegateCallbackQueue;
 	
 	NSMutableArray *_previousSecondTimestamps;
@@ -88,7 +49,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 	BOOL _renderingEnabled;
 	
 	NSURL *_recordingURL;
-	RosyWriterRecordingStatus _recordingStatus;
+	RecordingStatus _recordingStatus;
 	
 	UIBackgroundTaskIdentifier _pipelineRunningTask;
 }
@@ -105,7 +66,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 
 @end
 
-@implementation RosyWriterCapturePipeline
+@implementation CapturePipeline
 
 - (instancetype)init
 {
@@ -147,7 +108,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 
 #pragma mark Delegate
 
-- (void)setDelegate:(id<RosyWriterCapturePipelineDelegate>)delegate callbackQueue:(dispatch_queue_t)delegateCallbackQueue // delegate is weak referenced
+- (void)setDelegate:(id<CapturePipelineDelegate>)delegate callbackQueue:(dispatch_queue_t)delegateCallbackQueue // delegate is weak referenced
 {
 	if (delegate && !delegateCallbackQueue)
 		@throw [NSException exceptionWithName:NSInvalidArgumentException reason:@"Caller must provide a delegateCallbackQueue" userInfo:nil];
@@ -161,9 +122,9 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 	}
 }
 
-- (id<RosyWriterCapturePipelineDelegate>)delegate
+- (id<CapturePipelineDelegate>)delegate
 {
-	id <RosyWriterCapturePipelineDelegate> delegate = nil;
+	id <CapturePipelineDelegate> delegate = nil;
 	@synchronized( self ) {
         delegate = _delegate;
 	}
@@ -549,7 +510,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 		self.outputAudioFormatDescription = formatDescription;
 		
 		@synchronized( self ) {
-			if ( _recordingStatus == RosyWriterRecordingStatusRecording ) {
+			if ( _recordingStatus == RecordingStatusRecording ) {
 				[self.recorder appendAudioSampleBuffer:sampleBuffer];
 			}
 		}
@@ -582,7 +543,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 		{
 			[self outputPreviewPixelBuffer:renderedPixelBuffer];
 			
-			if ( _recordingStatus == RosyWriterRecordingStatusRecording ) {
+			if ( _recordingStatus == RecordingStatusRecording ) {
 				[self.recorder appendVideoPixelBuffer:renderedPixelBuffer withPresentationTime:timestamp];
 			}
 			
@@ -601,12 +562,12 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 {
 	@synchronized( self )
 	{
-		if ( _recordingStatus != RosyWriterRecordingStatusIdle ) {
+		if ( _recordingStatus != RecordingStatusIdle ) {
 			@throw [NSException exceptionWithName:NSInternalInconsistencyException reason:@"Already recording" userInfo:nil];
 			return;
 		}
 		
-		[self transitionToRecordingStatus:RosyWriterRecordingStatusStartingRecording error:nil];
+		[self transitionToRecordingStatus:RecordingStatusStartingRecording error:nil];
 	}
 	
 	MovieRecorder *recorder = [[MovieRecorder alloc] initWithURL:_recordingURL];
@@ -628,11 +589,11 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 {
 	@synchronized( self )
 	{
-		if ( _recordingStatus != RosyWriterRecordingStatusRecording ) {
+		if ( _recordingStatus != RecordingStatusRecording ) {
 			return;
 		}
 		
-		[self transitionToRecordingStatus:RosyWriterRecordingStatusStoppingRecording error:nil];
+		[self transitionToRecordingStatus:RecordingStatusStoppingRecording error:nil];
 	}
 	
 	[self.recorder finishRecording]; // asynchronous, will call us back with recorderDidFinishRecording: or recorder:didFailWithError: when done
@@ -644,12 +605,12 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 {
 	@synchronized( self )
 	{
-		if ( _recordingStatus != RosyWriterRecordingStatusStartingRecording ) {
+		if ( _recordingStatus != RecordingStatusStartingRecording ) {
 			@throw [NSException exceptionWithName:NSInternalInconsistencyException reason:@"Expected to be in StartingRecording state" userInfo:nil];
 			return;
 		}
 		
-		[self transitionToRecordingStatus:RosyWriterRecordingStatusRecording error:nil];
+		[self transitionToRecordingStatus:RecordingStatusRecording error:nil];
 	}
 }
 
@@ -657,7 +618,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 {
 	@synchronized( self ) {
 		self.recorder = nil;
-		[self transitionToRecordingStatus:RosyWriterRecordingStatusIdle error:error];
+		[self transitionToRecordingStatus:RecordingStatusIdle error:error];
 	}
 }
 
@@ -665,7 +626,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 {
 	@synchronized( self )
 	{
-		if ( _recordingStatus != RosyWriterRecordingStatusStoppingRecording ) {
+		if ( _recordingStatus != RecordingStatusStoppingRecording ) {
 			@throw [NSException exceptionWithName:NSInternalInconsistencyException reason:@"Expected to be in StoppingRecording state" userInfo:nil];
 			return;
 		}
@@ -685,11 +646,11 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 		[[NSFileManager defaultManager] removeItemAtURL:_recordingURL error:NULL];
 		
  		@synchronized( self ) {
-			if ( _recordingStatus != RosyWriterRecordingStatusStoppingRecording ) {
+			if ( _recordingStatus != RecordingStatusStoppingRecording ) {
 				@throw [NSException exceptionWithName:NSInternalInconsistencyException reason:@"Expected to be in StoppingRecording state" userInfo:nil];
 				return;
 			}
-			[self transitionToRecordingStatus:RosyWriterRecordingStatusIdle error:error];
+			[self transitionToRecordingStatus:RecordingStatusIdle error:error];
 		}
 	}];
 	[library release];
@@ -699,32 +660,32 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 #pragma mark Recording State Machine
 
 // call under @synchonized( self )
-- (void)transitionToRecordingStatus:(RosyWriterRecordingStatus)newStatus error:(NSError *)error
+- (void)transitionToRecordingStatus:(RecordingStatus)newStatus error:(NSError *)error
 {
 	SEL delegateSelector = NULL;
-	RosyWriterRecordingStatus oldStatus = _recordingStatus;
+	RecordingStatus oldStatus = _recordingStatus;
 	_recordingStatus = newStatus;
 	
 #if LOG_STATUS_TRANSITIONS
-	NSLog( @"RosyWriterCapturePipeline recording state transition: %@->%@", [self stringForRecordingStatus:oldStatus], [self stringForRecordingStatus:newStatus] );
+	NSLog( @"CapturePipeline recording state transition: %@->%@", [self stringForRecordingStatus:oldStatus], [self stringForRecordingStatus:newStatus] );
 #endif
 	
 	if ( newStatus != oldStatus )
 	{
-		if ( error && ( newStatus == RosyWriterRecordingStatusIdle ) )
+		if ( error && ( newStatus == RecordingStatusIdle ) )
 		{
 			delegateSelector = @selector(capturePipeline:recordingDidFailWithError:);
 		}
 		else
 		{
 			error = nil; // only the above delegate method takes an error
-			if ( ( oldStatus == RosyWriterRecordingStatusStartingRecording ) && ( newStatus == RosyWriterRecordingStatusRecording ) ) {
+			if ( ( oldStatus == RecordingStatusStartingRecording ) && ( newStatus == RecordingStatusRecording ) ) {
 				delegateSelector = @selector(capturePipelineRecordingDidStart:);
 			}
-			else if ( ( oldStatus == RosyWriterRecordingStatusRecording ) && ( newStatus == RosyWriterRecordingStatusStoppingRecording ) ) {
+			else if ( ( oldStatus == RecordingStatusRecording ) && ( newStatus == RecordingStatusStoppingRecording ) ) {
 				delegateSelector = @selector(capturePipelineRecordingWillStop:);
 			}
-			else if ( ( oldStatus == RosyWriterRecordingStatusStoppingRecording ) && ( newStatus == RosyWriterRecordingStatusIdle ) ) {
+			else if ( ( oldStatus == RecordingStatusStoppingRecording ) && ( newStatus == RecordingStatusIdle ) ) {
 				delegateSelector = @selector(capturePipelineRecordingDidStop:);
 			}
 		}
@@ -751,22 +712,22 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 
 #if LOG_STATUS_TRANSITIONS
 
-- (NSString *)stringForRecordingStatus:(RosyWriterRecordingStatus)status
+- (NSString *)stringForRecordingStatus:(RecordingStatus)status
 {
 	NSString *statusString = nil;
 	
 	switch ( status )
 	{
-		case RosyWriterRecordingStatusIdle:
+		case RecordingStatusIdle:
 			statusString = @"Idle";
 			break;
-		case RosyWriterRecordingStatusStartingRecording:
+		case RecordingStatusStartingRecording:
 			statusString = @"StartingRecording";
 			break;
-		case RosyWriterRecordingStatusRecording:
+		case RecordingStatusRecording:
 			statusString = @"Recording";
 			break;
-		case RosyWriterRecordingStatusStoppingRecording:
+		case RecordingStatusStoppingRecording:
 			statusString = @"StoppingRecording";
 			break;
 		default:

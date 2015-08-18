@@ -12,7 +12,7 @@
 		9C2ADFA61B7D672800B33338 /* matrix.c in Sources */ = {isa = PBXBuildFile; fileRef = 9C2ADF991B7D672800B33338 /* matrix.c */; };
 		9C2ADFA71B7D672800B33338 /* MovieRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C2ADF9C1B7D672800B33338 /* MovieRecorder.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		9C2ADFA81B7D672800B33338 /* OpenGLPixelBufferView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C2ADF9E1B7D672800B33338 /* OpenGLPixelBufferView.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		9C2ADFA91B7D672800B33338 /* RosyWriterCapturePipeline.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C2ADFA01B7D672800B33338 /* RosyWriterCapturePipeline.m */; };
+		9C2ADFA91B7D672800B33338 /* CapturePipeline.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C2ADFA01B7D672800B33338 /* CapturePipeline.m */; };
 		9C2ADFAB1B7D672800B33338 /* ShaderUtilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 9C2ADFA41B7D672800B33338 /* ShaderUtilities.c */; };
 		9C6D160C1B769EC200F07C23 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C6D160B1B769EC200F07C23 /* main.m */; };
 		9C6D160F1B769EC200F07C23 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C6D160E1B769EC200F07C23 /* AppDelegate.m */; };
@@ -34,8 +34,8 @@
 		9C2ADF9C1B7D672800B33338 /* MovieRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MovieRecorder.m; path = Pipeline/MovieRecorder.m; sourceTree = "<group>"; };
 		9C2ADF9D1B7D672800B33338 /* OpenGLPixelBufferView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OpenGLPixelBufferView.h; path = Pipeline/OpenGLPixelBufferView.h; sourceTree = "<group>"; };
 		9C2ADF9E1B7D672800B33338 /* OpenGLPixelBufferView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = OpenGLPixelBufferView.m; path = Pipeline/OpenGLPixelBufferView.m; sourceTree = "<group>"; };
-		9C2ADF9F1B7D672800B33338 /* RosyWriterCapturePipeline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RosyWriterCapturePipeline.h; path = Pipeline/RosyWriterCapturePipeline.h; sourceTree = "<group>"; };
-		9C2ADFA01B7D672800B33338 /* RosyWriterCapturePipeline.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RosyWriterCapturePipeline.m; path = Pipeline/RosyWriterCapturePipeline.m; sourceTree = "<group>"; };
+		9C2ADF9F1B7D672800B33338 /* CapturePipeline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CapturePipeline.h; path = Pipeline/CapturePipeline.h; sourceTree = "<group>"; };
+		9C2ADFA01B7D672800B33338 /* CapturePipeline.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CapturePipeline.m; path = Pipeline/CapturePipeline.m; sourceTree = "<group>"; };
 		9C2ADFA41B7D672800B33338 /* ShaderUtilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ShaderUtilities.c; path = Pipeline/ShaderUtilities.c; sourceTree = "<group>"; };
 		9C2ADFA51B7D672800B33338 /* ShaderUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ShaderUtilities.h; path = Pipeline/ShaderUtilities.h; sourceTree = "<group>"; };
 		9C6D16071B769EC200F07C23 /* Capture.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Capture.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -72,8 +72,8 @@
 				9C2ADF9C1B7D672800B33338 /* MovieRecorder.m */,
 				9C2ADF9D1B7D672800B33338 /* OpenGLPixelBufferView.h */,
 				9C2ADF9E1B7D672800B33338 /* OpenGLPixelBufferView.m */,
-				9C2ADF9F1B7D672800B33338 /* RosyWriterCapturePipeline.h */,
-				9C2ADFA01B7D672800B33338 /* RosyWriterCapturePipeline.m */,
+				9C2ADF9F1B7D672800B33338 /* CapturePipeline.h */,
+				9C2ADFA01B7D672800B33338 /* CapturePipeline.m */,
 				9C2ADFA51B7D672800B33338 /* ShaderUtilities.h */,
 				9C2ADFA41B7D672800B33338 /* ShaderUtilities.c */,
 			);
@@ -220,7 +220,7 @@
 				9C2ADFAB1B7D672800B33338 /* ShaderUtilities.c in Sources */,
 				9C840F001B7CE9660057E0D2 /* CHCSVParser.m in Sources */,
 				9C6D16121B769EC200F07C23 /* CaptureViewController.m in Sources */,
-				9C2ADFA91B7D672800B33338 /* RosyWriterCapturePipeline.m in Sources */,
+				9C2ADFA91B7D672800B33338 /* CapturePipeline.m in Sources */,
 				9C6D160F1B769EC200F07C23 /* AppDelegate.m in Sources */,
 				9C2ADF931B7D64F400B33338 /* DevicesViewController.m in Sources */,
 				9C6D160C1B769EC200F07C23 /* main.m in Sources */,

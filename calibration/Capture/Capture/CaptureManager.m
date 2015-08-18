@@ -8,7 +8,7 @@
 
 #import "CaptureManager.h"
 
-#import "RosyWriterCapturePipeline.h"
+#import "CapturePipeline.h"
 
 @interface CaptureManager () <RosyWriterCapturePipelineDelegate> {
     BOOL _allowedToUseGPU;
@@ -20,13 +20,13 @@
 
 #pragma mark - RosyWriterCapturePipelineDelegate
 
-- (void)capturePipeline:(RosyWriterCapturePipeline *)capturePipeline didStopRunningWithError:(NSError *)error
+- (void)capturePipeline:(CapturePipeline *)capturePipeline didStopRunningWithError:(NSError *)error
 {
     [self.delegate captureManager:self didStopRunningWithError:error];
 }
 
 // Preview
-- (void)capturePipeline:(RosyWriterCapturePipeline *)capturePipeline previewPixelBufferReadyForDisplay:(CVPixelBufferRef)previewPixelBuffer
+- (void)capturePipeline:(CapturePipeline *)capturePipeline previewPixelBufferReadyForDisplay:(CVPixelBufferRef)previewPixelBuffer
 {
     if (!_allowedToUseGPU)
         return;
@@ -34,25 +34,25 @@
     [self.delegate captureManager:self previewPixelBufferReadyForDisplay:previewPixelBuffer];
 }
 
-- (void)capturePipelineDidRunOutOfPreviewBuffers:(RosyWriterCapturePipeline *)capturePipeline
+- (void)capturePipelineDidRunOutOfPreviewBuffers:(CapturePipeline *)capturePipeline
 {
     NSLog(@"Capture pipeline ran out of preview buffers!");
 }
 
 // Recording
-- (void)capturePipelineRecordingDidStart:(RosyWriterCapturePipeline *)capturePipeline
+- (void)capturePipelineRecordingDidStart:(CapturePipeline *)capturePipeline
 {
 }
 
-- (void)capturePipelineRecordingWillStop:(RosyWriterCapturePipeline *)capturePipeline
+- (void)capturePipelineRecordingWillStop:(CapturePipeline *)capturePipeline
 {
 }
 
-- (void)capturePipelineRecordingDidStop:(RosyWriterCapturePipeline *)capturePipeline
+- (void)capturePipelineRecordingDidStop:(CapturePipeline *)capturePipeline
 {
 }
 
-- (void)capturePipeline:(RosyWriterCapturePipeline *)capturePipeline recordingDidFailWithError:(NSError *)error
+- (void)capturePipeline:(CapturePipeline *)capturePipeline recordingDidFailWithError:(NSError *)error
 {
     [self.delegate captureManager:self didStopRunningWithError:error];
 }
