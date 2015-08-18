@@ -57,22 +57,6 @@
 
 #include <objc/runtime.h> // for objc_loadWeak() and objc_storeWeak()
 
-/*
- RETAINED_BUFFER_COUNT is the number of pixel buffers we expect to hold on to from the renderer. This value informs the renderer how to size its buffer pool and how many pixel buffers to preallocate (done in the prepareWithOutputDimensions: method). Preallocation helps to lessen the chance of frame drops in our recording, in particular during recording startup. If we try to hold on to more buffers than RETAINED_BUFFER_COUNT then the renderer will fail to allocate new buffers from its pool and we will drop frames.
-
- A back of the envelope calculation to arrive at a RETAINED_BUFFER_COUNT of '6':
- - The preview path only has the most recent frame, so this makes the movie recording path the long pole.
- - The movie recorder internally does a dispatch_async to avoid blocking the caller when enqueuing to its internal asset writer.
- - Allow 2 frames of latency to cover the dispatch_async and the -[AVAssetWriterInput appendSampleBuffer:] call.
- - Then we allow for the encoder to retain up to 4 frames. Two frames are retained while being encoded/format converted, while the other two are to handle encoder format conversion pipelining and encoder startup latency.
-
- Really you need to test and measure the latency in your own application pipeline to come up with an appropriate number. 1080p BGRA buffers are quite large, so it's a good idea to keep this number as low as possible.
- */
-
-#define RETAINED_BUFFER_COUNT 6
-
-#define RECORD_AUDIO 0
-
 #define LOG_STATUS_TRANSITIONS 0
 
 typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
@@ -250,7 +234,6 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 		[self applicationWillEnterForeground];
 	}];
 	
-#if RECORD_AUDIO
 	/* Audio */
 	AVCaptureDevice *audioDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
 	AVCaptureDeviceInput *audioIn = [[AVCaptureDeviceInput alloc] initWithDevice:audioDevice error:nil];
@@ -270,7 +253,6 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 	}
 	_audioConnection = [audioOut connectionWithMediaType:AVMediaTypeAudio];
 	[audioOut release];
-#endif // RECORD_AUDIO
 	
 	/* Video */
 	AVCaptureDevice *videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
@@ -334,9 +316,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 	}
 
 	// Get the recommended compression settings after configuring the session/device.
-#if RECORD_AUDIO
 	_audioCompressionSettings = [[audioOut recommendedAudioSettingsForAssetWriterWithOutputFileType:AVFileTypeQuickTimeMovie] copy];
-#endif
 	_videoCompressionSettings = [[videoOut recommendedVideoSettingsForAssetWriterWithOutputFileType:AVFileTypeQuickTimeMovie] copy];
 	
 	self.videoOrientation = _videoConnection.videoOrientation;
@@ -663,9 +643,7 @@ typedef NS_ENUM( NSInteger, RosyWriterRecordingStatus )
 	
 	MovieRecorder *recorder = [[[MovieRecorder alloc] initWithURL:_recordingURL] autorelease];
 	
-#if RECORD_AUDIO
 	[recorder addAudioTrackWithSourceFormatDescription:self.outputAudioFormatDescription settings:_audioCompressionSettings];
-#endif // RECORD_AUDIO
     
 	CGAffineTransform videoTransform = [self transformFromVideoBufferOrientationToOrientation:self.recordingOrientation withAutoMirroring:NO]; // Front camera recording shouldn't be mirrored
 
