@@ -14,9 +14,58 @@
     BOOL _allowedToUseGPU;
 }
 
+@property (nonatomic, strong) CapturePipeline *capturePipeline;
+
 @end
 
 @implementation CaptureManager
+
+- (instancetype)init;
+{
+    if (!(self = [super init]))
+        return nil;
+    
+    
+    
+    return self;
+}
+
+- (BOOL)_commonInit;
+{
+    self.capturePipeline = [[CapturePipeline alloc] init];
+    [self.capturePipeline setDelegate:self callbackQueue:dispatch_get_main_queue()];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidEnterBackground:) name:UIApplicationDidEnterBackgroundNotification object:[UIApplication sharedApplication]];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForeground:) name:UIApplicationWillEnterForegroundNotification object:[UIApplication sharedApplication]];
+    
+    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
+    
+    _allowedToUseGPU = [UIApplication sharedApplication].applicationState != UIApplicationStateBackground;
+    self.capturePipeline.renderingEnabled = _allowedToUseGPU;
+    
+    return YES;
+}
+
+- (void)dealloc;
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidEnterBackgroundNotification object:[UIApplication sharedApplication]];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationWillEnterForegroundNotification object:[UIApplication sharedApplication]];
+}
+
+#pragma mark - Lifecycle
+
+- (void)applicationDidEnterBackground:(NSNotification *)note;
+{
+    _allowedToUseGPU = NO;
+    self.capturePipeline.renderingEnabled = NO;
+    [self.capturePipeline stopRecording]; // no-op if we aren't recording
+}
+
+- (void)applicationWillEnterForeground:(NSNotification *)note;
+{
+    _allowedToUseGPU = YES;
+    self.capturePipeline.renderingEnabled = YES;
+}
 
 #pragma mark - RosyWriterCapturePipelineDelegate
 
